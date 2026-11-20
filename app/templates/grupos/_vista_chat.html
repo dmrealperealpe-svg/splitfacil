@@ -1,0 +1,11 @@
+{% from "macros.html" import caja_mensaje, lista_mensajes, avatar, boton_post %}
+<section class="panel" aria-labelledby="t-chat">
+  <h2 id="t-chat">Chat del grupo</h2>
+  <p class="texto-suave">Lo que escribas aquí lo ven todas las personas del grupo que tienen cuenta.</p>
+  {{ caja_mensaje(url_for("grupos.chat_enviar", grupo_id=grupo.id), "Tu mensaje", "Enviar", "Ej: ¿quién pone la gasolina mañana?") }}
+  {% if mensajes %}
+  {{ lista_mensajes(mensajes, grupo.id, g.user.id) }}
+  {% else %}
+  <p class="texto-suave sin-margen" style="margin-top:1rem">Todavía no hay mensajes. Escribe el primero.</p>
+  {% endif %}
+</section>

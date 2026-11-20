@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Iniciar sesión{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel">
+      <h1>Qué bueno verte de nuevo</h1>
+      <p class="texto-suave">Entra para ver tus grupos y saber cómo van las cuentas.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        <input type="hidden" name="next" value="{{ destino }}">
+        {{ campo("email", "Correo electrónico", email, {}, tipo="email", attrs={"autocomplete": "email", "autofocus": "autofocus", "maxlength": 120}) }}
+        {{ campo("clave", "Contraseña", "", {}, tipo="password", attrs={"autocomplete": "current-password"}) }}
+        <label class="recordarme"><input type="checkbox" name="recordarme" value="1"> Mantener la sesión abierta en este dispositivo</label>
+        <button class="boton boton-primario boton-bloque boton-grande" type="submit">Iniciar sesión</button>
+      </form>
+      <p class="auth-pie"><a href="{{ url_for('auth.recuperar') }}">¿Olvidaste tu contraseña?</a></p>
+    </div>
+    <p class="auth-pie">¿Aún no tienes cuenta? <a href="{{ url_for('auth.registro', next=destino or None) }}">Crea una gratis</a></p>
+  </div>
+</div>
+{% endblock %}

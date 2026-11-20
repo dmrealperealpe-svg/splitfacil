@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "macros.html" import plural, saldo_texto, boton_post %}
+{% block titulo %}{{ grupo.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <p class="migas"><a href="{{ url_for('grupos.panel') }}">‹ Mis grupos</a></p>
+
+    <div class="grupo-cabecera">
+      <span class="grupo-emoji" aria-hidden="true">{{ grupo.emoji }}</span>
+      <div style="flex:1 1 14rem;min-width:0">
+        <h1>{{ grupo.nombre }}</h1>
+        {% if grupo.descripcion %}<p class="subtitulo">{{ grupo.descripcion }}</p>{% endif %}
+      </div>
+      <div class="fila">
+        <a class="boton boton-primario" href="{{ url_for('grupos.gasto_nuevo', grupo_id=grupo.id) }}">Agregar gasto</a>
+        <a class="boton boton-secundario" href="{{ url_for('grupos.pago_nuevo', grupo_id=grupo.id) }}">Registrar pago</a>
+        <details class="menu">
+          <summary class="menu-boton" aria-label="Más opciones del grupo"><span style="font-size:1.5rem;line-height:1;padding:0 .4rem" aria-hidden="true">⋮</span></summary>
+          <div class="menu-panel">
+            <a class="menu-item" href="{{ url_for('grupos.exportar', grupo_id=grupo.id) }}">Descargar CSV (Excel)</a>
+            {% if soy_propietario %}
+              <a class="menu-item" href="{{ url_for('grupos.editar', grupo_id=grupo.id) }}">Editar o eliminar grupo</a>
+            {% else %}
+              {{ boton_post(url_for('grupos.salir', grupo_id=grupo.id), "Salir del grupo", "menu-item menu-item-peligro",
+                  confirmar="Dejarás de ver este grupo. Tu historial se conserva para que las cuentas de los demás sigan cuadrando.", titulo="¿Salir del grupo?", aceptar="Salir", peligro=True) }}
+            {% endif %}
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="cifras-grupo">
+      <div>
+        <span class="etiqueta-chica">Total gastado</span>
+        <span class="cifra">{{ total|cop }}</span>
+      </div>
+      <div>
+        <span class="etiqueta-chica">Tu saldo</span>
+        {% if mi_saldo > 0 %}<span class="cifra texto-favor">{{ mi_saldo|cop }}</span> <small class="texto-suave">te deben</small>
+        {% elif mi_saldo < 0 %}<span class="cifra texto-debe">{{ (-mi_saldo)|cop }}</span> <small class="texto-suave">debes</small>
+        {% else %}<span class="cifra">{{ 0|cop }}</span> <small class="texto-suave">estás al día</small>{% endif %}
+      </div>
+    </div>
+
+    <nav class="pestanas" aria-label="Secciones del grupo">
+      {% for clave, nombre in [("gastos", "Gastos"), ("saldos", "Saldos"), ("personas", "Personas"), ("chat", "Chat"), ("historial", "Historial")] %}
+      <a class="pestana" href="{{ url_for('grupos.detalle', grupo_id=grupo.id, vista=clave) }}"{% if vista == clave %} aria-current="page"{% endif %}>{{ nombre }}{% if clave == "gastos" %}<span class="insignia">{{ n_gastos }}</span>{% elif clave == "personas" %}<span class="insignia">{{ miembros|length }}</span>{% endif %}</a>
+      {% endfor %}
+    </nav>
+
+    {% include "grupos/_vista_" ~ vista ~ ".html" %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, avatar, csrf %}
+{% block titulo %}{{ "Editar gasto" if gasto else "Nuevo gasto" }}{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-texto">
+    <p class="migas"><a href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">‹ {{ grupo.nombre }}</a></p>
+    <div class="panel">
+      <h1 style="font-size:2rem">{{ "Editar gasto" if gasto else "Agregar gasto" }}</h1>
+      <form class="formulario-gasto" method="post" novalidate>
+        {{ csrf() }}
+        {{ campo("descripcion", "¿En qué se gastó?", valores.get("descripcion"), errores, attrs={"maxlength": 120, "placeholder": "Cena, mercado, gasolina...", "autofocus": "autofocus", "autocomplete": "off"}) }}
+
+        <div class="fila-form">
+          {{ campo("monto", "¿Cuánto costó?", valores.get("monto"), errores, tipo="monto", attrs={"placeholder": "0"}) }}
+          {{ campo("fecha", "Fecha", valores.get("fecha"), errores, tipo="date") }}
+        </div>
+
+        <fieldset class="campo">
+          <legend class="etiqueta">Categoría</legend>
+          <div class="opciones">
+            {% for clave, (nombre, emoji) in CATEGORIAS.items() %}
+            <label class="opcion"><input type="radio" name="categoria" value="{{ clave }}"{% if clave == valores.get("categoria") %} checked{% endif %}><span><span aria-hidden="true">{{ emoji }}</span> {{ nombre }}</span></label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <div class="campo{% if errores.get('pagado_por') %} campo-error{% endif %}">
+          <label class="etiqueta" for="pagado_por">¿Quién pagó?</label>
+          <select class="entrada" id="pagado_por" name="pagado_por">
+            {% for m in miembros %}
+            <option value="{{ m.id }}"{% if m.id|string == valores.get("pagado_por")|string %} selected{% endif %}>{{ m.nombre }}{% if m.usuario_id == g.user.id %} (tú){% endif %}</option>
+            {% endfor %}
+          </select>
+          {% if errores.get("pagado_por") %}<span class="error-campo">{{ errores.pagado_por }}</span>{% endif %}
+        </div>
+
+        <fieldset class="campo">
+          <legend class="etiqueta">¿Cómo se divide?</legend>
+          <div class="segmentado">
+            <label class="opcion"><input type="radio" id="division-igual" name="tipo_division" value="igual"{% if valores.get("tipo_division") != "exacta" %} checked{% endif %}><span>En partes iguales</span></label>
+            <label class="opcion"><input type="radio" id="division-exacta" name="tipo_division" value="exacta"{% if valores.get("tipo_division") == "exacta" %} checked{% endif %}><span>Montos exactos</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="campo{% if errores.get('participantes') or errores.get('partes') %} campo-error{% endif %}">
+          <legend class="etiqueta">¿Entre quiénes?</legend>
+          <div class="fila" style="margin-bottom:.6rem">
+            <button class="boton boton-suave boton-chico" type="button" data-marcar="todos">Marcar a todos</button>
+            <button class="boton boton-suave boton-chico" type="button" data-marcar="ninguno">Quitar a todos</button>
+            <button class="boton boton-suave boton-chico parte-exacta-solo" type="button" data-autocompletar>Llenar con partes iguales</button>
+          </div>
+          {% set marcados = valores.get("participantes") or [] %}
+          <div class="participantes">
+            {% for m in miembros %}
+            {% set texto_parte = (valores.get("partes_texto") or {}).get(m.id) %}
+            {% set valor_parte = texto_parte if texto_parte is not none else (valores.get("partes") or {}).get(m.id, "") %}
+            <label class="participante" data-miembro="{{ m.id }}">
+              <input type="checkbox" name="participantes" value="{{ m.id }}"{% if m.id in marcados %} checked{% endif %}>
+              {{ avatar(m.nombre, m.emoji, "avatar-chico") }}
+              <span class="nombre">{{ m.nombre }}{% if m.usuario_id == g.user.id %} (tú){% endif %}</span>
+              <span class="parte-celda">
+                <span class="parte-previa" aria-live="polite">—</span>
+                <span class="parte-exacta entrada-monto"><input class="entrada" type="text" inputmode="numeric" autocomplete="off" name="parte_{{ m.id }}" data-monto data-parte value="{{ valor_parte if valor_parte else '' }}" aria-label="Parte de {{ m.nombre }}"></span>
+              </span>
+            </label>
+            {% endfor %}
+          </div>
+          <div class="suma-control" aria-live="polite"></div>
+          {% if errores.get("participantes") %}<span class="error-campo">{{ errores.participantes }}</span>{% endif %}
+          {% if errores.get("partes") %}<span class="error-campo">{{ errores.partes }}</span>{% endif %}
+        </fieldset>
+
+        {{ campo("nota", "Nota (opcional)", valores.get("nota"), errores, attrs={"maxlength": 300, "placeholder": "Algo que quieras recordar"}) }}
+
+        <div class="fila">
+          <button class="boton boton-primario boton-grande" type="submit">{{ "Guardar cambios" if gasto else "Guardar gasto" }}</button>
+          <a class="boton boton-suave" href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/gasto.js') }}" defer></script>{% endblock %}

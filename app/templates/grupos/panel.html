@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar, plural, boton_post %}
+{% block titulo %}Mis grupos{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Hola, {{ g.user.nombre.split()[0] }}</h1>
+        <p class="subtitulo">Así van tus cuentas hoy.</p>
+      </div>
+      <a class="boton boton-primario" href="{{ url_for('grupos.nuevo') }}">Nuevo grupo</a>
+    </div>
+
+    {% if pendientes %}
+    <div class="invitacion-aviso">
+      <span aria-hidden="true" style="font-size:1.6rem">✉️</span>
+      <p class="sin-margen espacio"><b>{{ plural(pendientes|length, "invitación pendiente", "invitaciones pendientes") }}.</b> Alguien quiere que te unas a su grupo.</p>
+      <a class="boton boton-primario boton-chico" href="{{ url_for('invitaciones.bandeja') }}">Ver invitaciones</a>
+    </div>
+    {% endif %}
+
+    <div class="balance-resumen">
+      <div class="balance-celda es-favor">
+        <span class="etiqueta-chica">En total, te deben</span>
+        <span class="cifra cifra-grande texto-favor">{{ te_deben|cop }}</span>
+      </div>
+      <div class="balance-celda es-debe">
+        <span class="etiqueta-chica">En total, debes</span>
+        <span class="cifra cifra-grande texto-debe">{{ debes|cop }}</span>
+      </div>
+    </div>
+
+    <div class="panel-rejilla">
+      <section aria-labelledby="titulo-grupos">
+        <h2 id="titulo-grupos" style="font-size:1.4rem">Tus grupos</h2>
+        {% if grupos %}
+        <div class="grupos-rejilla">
+          {% for gr in grupos %}
+          <a class="grupo-tile {{ 'es-favor' if gr.saldo > 0 else ('es-debe' if gr.saldo < 0 else '') }}" href="{{ url_for('grupos.detalle', grupo_id=gr.id) }}">
+            <span class="grupo-emoji" aria-hidden="true">{{ gr.emoji }}</span>
+            <div style="min-width:0">
+              <h3>{{ gr.nombre }}</h3>
+              <p>{{ plural(gr.n_miembros, "persona", "personas") }}, {{ plural(gr.n_gastos, "gasto", "gastos") }}</p>
+            </div>
+            <div class="grupo-saldo">
+              {% if gr.saldo > 0 %}<span class="cifra texto-favor">{{ gr.saldo|cop }}</span><small>te deben</small>
+              {% elif gr.saldo < 0 %}<span class="cifra texto-debe">{{ (-gr.saldo)|cop }}</span><small>debes</small>
+              {% else %}<small>estás al día</small>{% endif %}
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="vacio">
+          <span class="vacio-emoji" aria-hidden="true">🧾</span>
+          <h3>Aún no tienes grupos</h3>
+          <p>Crea el primero para empezar a dividir gastos, o carga dos grupos de ejemplo para explorar la app.</p>
+          <div class="fila">
+            <a class="boton boton-primario" href="{{ url_for('grupos.nuevo') }}">Crear mi primer grupo</a>
+            {{ boton_post(url_for('grupos.ejemplo'), "Cargar grupos de ejemplo", "boton boton-secundario") }}
+          </div>
+        </div>
+        {% endif %}
+      </section>
+
+      {% if actividad %}
+      <aside aria-labelledby="titulo-actividad">
+        <h2 id="titulo-actividad" style="font-size:1.4rem">Lo último que pasó</h2>
+        <div class="panel">
+          <ul class="actividad-lista">
+            {% for a in actividad %}
+            <li class="actividad-item">
+              {{ avatar(a.autor or "?", a.autor_emoji or "", "avatar-chico") }}
+              <div>
+                <p><b>{{ a.autor or "Alguien" }}</b> {{ a.texto }}</p>
+                <small>{{ a.grupo_nombre }}, {{ a.creado_en|hace }}</small>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </aside>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

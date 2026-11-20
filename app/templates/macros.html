@@ -1,0 +1,98 @@
+{# Macros reutilizables (Tema 2: no repetir HTML). Se importan así:
+   {% from "macros.html" import avatar, campo, boton_post %} #}
+
+{% macro logo(clase="marca-sello") %}
+<svg class="{{ clase }}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <rect class="sello-fondo" width="64" height="64" rx="16"/>
+  <path d="M19 13h26a2 2 0 0 1 2 2v36l-4.33-3.4-4.34 3.4-4.33-3.4-4.33 3.4-4.34-3.4L17 51V15a2 2 0 0 1 2-2z" fill="#fff" opacity=".96"/>
+  <path class="sello-trazo" d="M32 19v26" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.1 6.6" fill="none"/>
+</svg>
+{% endmacro %}
+
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{# Avatar con iniciales (o el emoji que eligió la persona) #}
+{% macro avatar(nombre, emoji="", clase="") %}
+<span class="avatar{% if emoji %} avatar-emoji{% endif %}{% if clase %} {{ clase }}{% endif %}" style="--tono: {{ nombre|tono }}" aria-hidden="true">{{ emoji if emoji else (nombre|iniciales) }}</span>
+{% endmacro %}
+
+{# Campo de formulario con etiqueta, ayuda y mensaje de error.
+   tipo: text, email, password, textarea, monto, date... #}
+{% macro campo(nombre, etiqueta, valor="", errores={}, tipo="text", ayuda="", attrs={}) %}
+{% set error = errores.get(nombre) if errores else None %}
+<div class="campo{% if error %} campo-error{% endif %}">
+  <label class="etiqueta" for="{{ nombre }}">{{ etiqueta }}</label>
+  {% if tipo == "textarea" %}
+  <textarea class="entrada" id="{{ nombre }}" name="{{ nombre }}"{% for k, v in attrs.items() %} {{ k }}="{{ v }}"{% endfor %}{% if error %} aria-invalid="true" aria-describedby="error-{{ nombre }}"{% endif %}>{{ valor or "" }}</textarea>
+  {% elif tipo == "monto" %}
+  <div class="entrada-monto">
+    <input class="entrada" id="{{ nombre }}" name="{{ nombre }}" type="text" inputmode="numeric" autocomplete="off" data-monto value="{{ valor or '' }}"{% for k, v in attrs.items() %} {{ k }}="{{ v }}"{% endfor %}{% if error %} aria-invalid="true" aria-describedby="error-{{ nombre }}"{% endif %}>
+  </div>
+  {% else %}
+  <input class="entrada" id="{{ nombre }}" name="{{ nombre }}" type="{{ tipo }}" value="{{ valor or '' }}"{% for k, v in attrs.items() %} {{ k }}="{{ v }}"{% endfor %}{% if error %} aria-invalid="true" aria-describedby="error-{{ nombre }}"{% endif %}>
+  {% endif %}
+  {% if error %}<span class="error-campo" id="error-{{ nombre }}">{{ error }}</span>
+  {% elif ayuda %}<span class="ayuda-campo">{{ ayuda }}</span>{% endif %}
+</div>
+{% endmacro %}
+
+{# Botón que envía un formulario POST con su token CSRF.
+   Si pasas `confirmar`, se abre un cuadro de confirmación antes de enviar. #}
+{% macro boton_post(url, texto, clase="boton boton-secundario boton-chico", confirmar=None, titulo=None, aceptar=None, peligro=False, campos={}) %}
+<form class="en-linea" method="post" action="{{ url }}"{% if confirmar %} data-confirmar="{{ confirmar }}"{% if titulo %} data-confirmar-titulo="{{ titulo }}"{% endif %}{% if aceptar %} data-confirmar-boton="{{ aceptar }}"{% endif %}{% if peligro %} data-confirmar-tipo="peligro"{% endif %}{% endif %}>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for k, v in campos.items() %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+  <button class="{{ clase }}" type="submit">{{ caller() if caller else texto }}</button>
+</form>
+{% endmacro %}
+
+{# Paginación: conserva la búsqueda y los filtros de la dirección actual #}
+{% macro paginacion(pag) %}
+{% if pag.paginas > 1 %}
+{% set args = dict(request.view_args or {}, **request.args.to_dict()) %}
+{% set _ = args.pop("pagina", None) %}
+<nav class="paginacion" aria-label="Paginación">
+  {% if pag.hay_anterior %}<a class="boton boton-secundario boton-chico" href="{{ url_for(request.endpoint, pagina=pag.pagina - 1, **args) }}" rel="prev">Anterior</a>{% endif %}
+  <span>Página {{ pag.pagina }} de {{ pag.paginas }}</span>
+  {% if pag.hay_siguiente %}<a class="boton boton-secundario boton-chico" href="{{ url_for(request.endpoint, pagina=pag.pagina + 1, **args) }}" rel="next">Siguiente</a>{% endif %}
+</nav>
+{% endif %}
+{% endmacro %}
+
+{# Texto en singular o plural: {{ plural(3, "gasto", "gastos") }} -> "3 gastos" #}
+{% macro plural(n, singular, plural_) %}{{ n }} {{ singular if n == 1 else plural_ }}{% endmacro %}
+
+{# Cifra de saldo con su significado en palabras (no solo en color) #}
+{% macro saldo_texto(valor, favor="te deben", debe="debes", aldia="estás al día") %}
+{% if valor > 0 %}<span class="cifra texto-favor">{{ valor|cop }}</span><small>{{ favor }}</small>
+{% elif valor < 0 %}<span class="cifra texto-debe">{{ (-valor)|cop }}</span><small>{{ debe }}</small>
+{% else %}<span class="cifra">{{ 0|cop }}</span><small>{{ aldia }}</small>{% endif %}
+{% endmacro %}
+
+{# Lista de mensajes y formulario de envío. Sirve para el chat del grupo y para los comentarios de un gasto. #}
+{% macro caja_mensaje(url, etiqueta, boton, ayuda="") %}
+<form class="caja-mensaje" method="post" action="{{ url }}" id="escribir">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label class="etiqueta" for="texto-mensaje">{{ etiqueta }}</label>
+  <textarea class="entrada" id="texto-mensaje" name="texto" rows="2" maxlength="500" required placeholder="{{ ayuda }}"></textarea>
+  <div class="fila-entre"><small class="texto-suave">Máximo 500 letras.</small><button class="boton boton-primario" type="submit">{{ boton }}</button></div>
+</form>
+{% endmacro %}
+
+{% macro lista_mensajes(mensajes, grupo_id, yo_id) %}
+<ul class="mensajes">
+  {% for m in mensajes %}
+  <li class="mensaje{% if m.usuario_id == yo_id %} mensaje-mio{% endif %}">
+    {{ avatar(m.autor or "?", m.autor_emoji or "", "avatar-chico") }}
+    <div class="mensaje-burbuja">
+      <div class="fila-entre"><b>{{ m.autor or "Cuenta eliminada" }}{% if m.usuario_id == yo_id %} (tú){% endif %}</b><small class="texto-suave">{{ m.creado_en|hace }}</small></div>
+      <p>{{ m.texto }}</p>
+      {% if m.puedo_borrar %}
+      {{ boton_post(url_for("grupos.comentario_eliminar", grupo_id=grupo_id, comentario_id=m.id), "Eliminar", "boton boton-suave boton-chico",
+          confirmar="Se borra este mensaje para todo el grupo.", titulo="¿Eliminar el mensaje?", aceptar="Eliminar", peligro=True) }}
+      {% endif %}
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endmacro %}

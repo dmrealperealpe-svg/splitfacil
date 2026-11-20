@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf, boton_post %}
+{% block titulo %}Editar {{ grupo.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-form">
+    <p class="migas"><a href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">‹ {{ grupo.nombre }}</a></p>
+    <div class="panel">
+      <h1 style="font-size:2rem">Editar grupo</h1>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        {% include "grupos/_campos_grupo.html" %}
+        <div class="fila">
+          <button class="boton boton-primario" type="submit">Guardar cambios</button>
+          <a class="boton boton-suave" href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel panel-peligro">
+      <h2>Eliminar grupo</h2>
+      <p class="texto-suave">Se borran el grupo, sus gastos, pagos e historial para todas las personas. No se puede deshacer.</p>
+      {{ boton_post(url_for('grupos.eliminar', grupo_id=grupo.id), "Eliminar este grupo", "boton boton-peligro",
+          confirmar="Se borrará «" ~ grupo.nombre ~ "» con todos sus gastos para todas las personas.", titulo="¿Eliminar el grupo?", aceptar="Sí, eliminar", peligro=True) }}
+    </div>
+  </div>
+</div>
+{% endblock %}

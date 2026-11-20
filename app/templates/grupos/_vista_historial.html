@@ -1,0 +1,19 @@
+{% from "macros.html" import avatar %}
+<section class="panel" aria-labelledby="t-historial">
+  <h2 id="t-historial">Historial del grupo</h2>
+  {% if actividad %}
+  <ul class="actividad-lista">
+    {% for a in actividad %}
+    <li class="actividad-item">
+      {{ avatar(a.autor or "?", a.autor_emoji or "", "avatar-chico") }}
+      <div>
+        <p><b>{{ a.autor or "Alguien" }}</b> {{ a.texto }}</p>
+        <small class="texto-suave">{{ a.creado_en|hace }}</small>
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="texto-suave sin-margen">Aquí aparecerá todo lo que pase en el grupo.</p>
+  {% endif %}
+</section>

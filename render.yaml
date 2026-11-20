@@ -1,0 +1,21 @@
+# Despliegue en Render.com (Tema 7). Sube el proyecto a GitHub, crea un "Blueprint" en Render
+# apuntando a este repositorio y completa las variables marcadas con sync: false.
+services:
+  - type: web
+    name: splitfacil
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app --workers 2 --bind 0.0.0.0:$PORT
+    healthCheckPath: /api/salud
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL        # base PostgreSQL (Supabase o Render). Sin esto usa SQLite temporal.
+        sync: false

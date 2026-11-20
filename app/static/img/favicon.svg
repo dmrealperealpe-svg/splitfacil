@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="SplitFácil">
+  <rect width="64" height="64" rx="16" fill="#007654"/>
+  <path d="M18 14h28a2 2 0 0 1 2 2v34l-5-3.5-5 3.5-5-3.5-5 3.5-5-3.5-5 3.5V16a2 2 0 0 1 2-2z" fill="#fff"/>
+  <path d="M32 20v20M32 20l-6 6M32 20l6 6" fill="none" stroke="#007654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" transform="rotate(90 32 30) translate(0 -2)"/>
+</svg>

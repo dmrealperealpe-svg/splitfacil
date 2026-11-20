@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block titulo %}Divide gastos con tus amigos{% endblock %}
+
+{% block contenido %}
+<section class="hero">
+  <div class="contenedor hero-rejilla">
+    <div>
+      <h1>Cuentas claras, amistades largas.</h1>
+      <p class="hero-lead">SplitFácil anota los gastos del grupo y te dice quién le debe a quién. Sin hojas de cálculo, sin calculadora y sin discusiones.</p>
+      <div class="hero-acciones">
+        <a class="boton boton-primario boton-grande" href="{{ url_for('auth.registro') }}">Crear mi cuenta gratis</a>
+        <a class="boton boton-secundario boton-grande" href="{{ url_for('auth.entrar') }}">Ya tengo cuenta</a>
+      </div>
+      <p class="hero-nota">Sirve para el apartamento, el viaje, el asado o el regalo en común.</p>
+    </div>
+
+    <div class="ticket-envoltura">
+      <div class="ticket">
+        <h2>Prueba con la cuenta de una cena</h2>
+        <div class="ticket-campos">
+          <div class="campo sin-margen">
+            <label class="etiqueta" for="t-monto">Total de la cuenta</label>
+            <div class="entrada-monto"><input class="entrada" id="t-monto" type="text" inputmode="numeric" autocomplete="off" data-monto value="180.000"></div>
+          </div>
+          <div>
+            <label class="etiqueta" for="t-personas">Personas</label>
+            <div class="contador">
+              <button type="button" data-delta="-1" aria-label="Una persona menos">−</button>
+              <input id="t-personas" type="number" min="2" max="30" value="4" inputmode="numeric">
+              <button type="button" data-delta="1" aria-label="Una persona más">+</button>
+            </div>
+          </div>
+        </div>
+        <hr class="ticket-linea">
+        <div class="ticket-resultado">
+          <span>Cada persona paga</span>
+          <span class="cifra" id="t-cada" aria-live="polite">$45.000</span>
+        </div>
+        <p class="ticket-detalle" id="t-detalle" aria-live="polite">Cada una de las 4 personas paga lo mismo. Quien puso la plata recupera el resto.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion seccion-alt" id="como-funciona">
+  <div class="contenedor">
+    <div class="seccion-titulo">
+      <h2>Así funciona</h2>
+      <p class="texto-suave sin-margen">Tres pasos y nadie tiene que acordarse de quién pagó qué.</p>
+    </div>
+    <ol class="pasos">
+      <li class="paso">
+        <h3>Crea un grupo</h3>
+        <p>Para el apartamento, el viaje o el paseo del domingo. Agrega a quienes participan, tengan cuenta o no.</p>
+      </li>
+      <li class="paso">
+        <h3>Anota cada gasto</h3>
+        <p>Di quién pagó y entre quiénes se divide: en partes iguales o con montos exactos para cada uno.</p>
+      </li>
+      <li class="paso">
+        <h3>Salda sin enredos</h3>
+        <p>Ves cuánto debe cada persona y los pocos pagos que dejan todo en cero. Cuando alguien paga, lo registras.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor">
+    <div class="seccion-titulo">
+      <h2>Pensada para que todos la entiendan</h2>
+    </div>
+    <ul class="beneficios">
+      <li class="beneficio">
+        <h3>Invita a tus amigos</h3>
+        <p>Mándales una invitación por correo o comparte un enlace por WhatsApp. Cuando entran, ven el mismo grupo que tú.</p>
+      </li>
+      <li class="beneficio">
+        <h3>También para quien no tiene cuenta</h3>
+        <p>Agrega a alguien solo con su nombre. Si después se registra, conserva todo su historial.</p>
+      </li>
+      <li class="beneficio">
+        <h3>Ni un peso perdido</h3>
+        <p>Cuando 100 pesos se dividen entre 3, el reparto es 34, 33 y 33. Las cuentas siempre cuadran.</p>
+      </li>
+      <li class="beneficio">
+        <h3>Se ve como te guste</h3>
+        <p>Tema claro, oscuro o automático, y cinco colores a elegir. Letra grande y contraste alto para leer con comodidad.</p>
+      </li>
+      <li class="beneficio">
+        <h3>Tus datos, a la mano</h3>
+        <p>Descarga los gastos de cada grupo en un archivo que se abre directo en Excel.</p>
+      </li>
+      <li class="beneficio">
+        <h3>Segura por dentro</h3>
+        <p>Cada grupo lo ven solo sus integrantes, y tu contraseña se guarda cifrada, nunca en texto.</p>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<section class="seccion seccion-alt">
+  <div class="contenedor-texto">
+    <h2>Preguntas frecuentes</h2>
+    <details class="faq"><summary>¿Cuesta algo usar SplitFácil?</summary><div><p>No. Crear la cuenta, los grupos y los gastos que necesites es gratis.</p></div></details>
+    <details class="faq"><summary>¿Mis amigos necesitan tener cuenta?</summary><div><p>No es obligatorio. Puedes agregarlos por nombre y llevar las cuentas por ellos. Si quieren ver el grupo desde su celular, los invitas y se registran en un minuto.</p></div></details>
+    <details class="faq"><summary>¿Cómo sé quién le debe a quién?</summary><div><p>En la pestaña «Saldos» de cada grupo ves una barra por persona: a la derecha, a quien le deben; a la izquierda, quien debe. Debajo aparece la lista de pagos más corta para dejar todo en cero.</p></div></details>
+    <p style="margin-top:1.2rem"><a href="{{ url_for('principal.ayuda') }}">Ver la guía completa</a></p>
+  </div>
+</section>
+
+<section class="seccion cierre">
+  <div class="contenedor">
+    <h2>Empieza con tu próximo plan</h2>
+    <p>Crea el grupo, invita a los demás y deja que SplitFácil haga las cuentas.</p>
+    <a class="boton boton-primario boton-grande" href="{{ url_for('auth.registro') }}">Crear mi cuenta gratis</a>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/inicio.js') }}" defer></script>{% endblock %}

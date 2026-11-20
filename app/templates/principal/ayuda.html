@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titulo %}Ayuda{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-texto">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Guía rápida</h1>
+        <p class="subtitulo">Todo lo que necesitas para llevar las cuentas de tu grupo.</p>
+      </div>
+    </div>
+
+    <h2>Primeros pasos</h2>
+    <details class="faq" open><summary>Quiero empezar. ¿Qué hago primero?</summary><div>
+      <p>Crea tu cuenta, entra a «Mis grupos» y pulsa «Nuevo grupo». Ponle un nombre, elige un emoji y escribe los nombres de las demás personas separados por coma. Después agrega el primer gasto.</p>
+      <p>¿Quieres explorar antes de escribir nada? En tu panel hay un botón para cargar dos grupos de ejemplo.</p>
+    </div></details>
+    <details class="faq"><summary>¿Qué significan «te deben» y «debes»?</summary><div>
+      <p>Es tu saldo en el grupo. Si pagaste más de lo que te tocaba, a ti te deben. Si pagaste menos, tú debes. Siempre aparece escrito con palabras y con un color: verde para «te deben» y rojo para «debes».</p>
+    </div></details>
+
+    <h2 style="margin-top:2rem">Gastos</h2>
+    <details class="faq"><summary>¿Cómo agrego un gasto?</summary><div>
+      <p>Dentro del grupo pulsa «Agregar gasto». Escribe en qué se gastó y cuánto, elige quién pagó y marca las personas que lo comparten. Puedes escribir el monto como 85000, 85.000 o $85.000.</p>
+    </div></details>
+    <details class="faq"><summary>¿Qué es la división «igual» y la «exacta»?</summary><div>
+      <p>En «igual», el gasto se reparte en partes iguales entre las personas que marcaste. Si no se puede dividir exacto, la diferencia se reparte de a un peso para que nadie pierda nada. En «exacta» escribes cuánto le toca a cada persona; las partes deben sumar el total del gasto.</p>
+    </div></details>
+    <details class="faq"><summary>Me equivoqué. ¿Puedo corregir o borrar un gasto?</summary><div>
+      <p>Sí. Usa el menú de tres puntos del gasto. Pueden editarlo o borrarlo quien lo registró y la persona que creó el grupo.</p>
+    </div></details>
+
+    <h2 style="margin-top:2rem">Saldos y pagos</h2>
+    <details class="faq"><summary>¿Cómo dejamos todo en cero?</summary><div>
+      <p>En la pestaña «Saldos» aparece la lista más corta de pagos para saldar las cuentas. Cuando alguien paga, pulsa «Registrar pago» y el saldo se actualiza solo. No tienes que marcar gasto por gasto.</p>
+    </div></details>
+    <details class="faq"><summary>¿SplitFácil mueve dinero?</summary><div>
+      <p>No. SplitFácil solo lleva la cuenta. El dinero lo pasan ustedes por Nequi, transferencia o efectivo, y después lo registran aquí.</p>
+    </div></details>
+
+    <h2 style="margin-top:2rem">Invitar a otras personas</h2>
+    <details class="faq"><summary>¿Cómo invito a alguien?</summary><div>
+      <p>Entra a la pestaña «Personas» del grupo. Puedes escribir su correo (le llegará a su bandeja de invitaciones cuando entre a SplitFácil) o crear un enlace de invitación para compartirlo por WhatsApp.</p>
+    </div></details>
+    <details class="faq"><summary>Una persona del grupo no tiene cuenta. ¿Qué pasa cuando se registre?</summary><div>
+      <p>Puedes enviarle una invitación vinculada a su nombre. Al aceptarla, conserva todos los gastos y pagos que ya tenía, sin duplicarse.</p>
+    </div></details>
+    <details class="faq"><summary>¿Quién puede ver mi grupo?</summary><div>
+      <p>Solo las personas que están dentro. Si alguien escribe la dirección de un grupo ajeno, la app le niega el acceso.</p>
+    </div></details>
+
+    <h2 style="margin-top:2rem">Tu cuenta</h2>
+    <details class="faq"><summary>¿Cómo cambio el tema o el color?</summary><div>
+      <p>Pulsa el ícono de la paleta en la barra superior. Elige claro, oscuro o automático (sigue la configuración de tu dispositivo) y uno de los cinco colores. Se guarda en tu cuenta.</p>
+    </div></details>
+    <details class="faq"><summary>Olvidé mi contraseña</summary><div>
+      <p>En la pantalla de inicio de sesión pulsa «¿Olvidaste tu contraseña?» y escribe tu correo. Recibirás un enlace que dura una hora.</p>
+    </div></details>
+    <details class="faq"><summary>¿Puedo descargar mis gastos?</summary><div>
+      <p>Sí. En cada grupo, el botón «Descargar CSV» genera un archivo que se abre en Excel con tildes y ñ bien escritas.</p>
+    </div></details>
+    <details class="faq"><summary>¿Cómo elimino mi cuenta?</summary><div>
+      <p>En tu perfil, al final, está la zona de eliminar cuenta. Los grupos donde eres la única persona se borran; en los demás, tu nombre queda en el historial para que las cuentas de los otros sigan cuadrando.</p>
+    </div></details>
+
+    <div class="panel" style="margin-top:2.5rem">
+      <h3>¿No encuentras lo que buscas?</h3>
+      <p class="texto-suave">Escríbenos y te respondemos pronto.</p>
+      <a class="boton boton-secundario" href="{{ url_for('principal.contacto') }}">Ir a contacto</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

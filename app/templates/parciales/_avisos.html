@@ -1,0 +1,13 @@
+{# Mensajes flash (Tema 4): lo que la app le dice a la persona después de una acción.
+   En el código se escribe flash("texto", "success"); aquí se muestran todos y se limpian solos. #}
+{% set iconos = {"success": "✓", "error": "!", "warning": "!", "info": "i"} %}
+<div class="avisos" role="region" aria-label="Notificaciones">
+  {% for categoria, texto in get_flashed_messages(with_categories=true) %}
+    {% set tipo = categoria if categoria in iconos else "info" %}
+    <div class="aviso aviso-{{ tipo }}" role="{{ 'alert' if tipo == 'error' else 'status' }}">
+      <span class="aviso-icono" aria-hidden="true">{{ iconos[tipo] }}</span>
+      <p class="aviso-texto sin-margen">{{ texto }}</p>
+      <button type="button" class="aviso-cerrar" aria-label="Cerrar aviso">×</button>
+    </div>
+  {% endfor %}
+</div>

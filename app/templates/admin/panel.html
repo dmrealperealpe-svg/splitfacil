@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar %}
+{% block titulo %}Administración{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Administración</h1>
+        <p class="subtitulo">Solo las personas con rol de administrador ven esta zona. Si alguien más escribe la dirección a mano, la app responde con un error 403.</p>
+      </div>
+    </div>
+    {% include "admin/_pestanas.html" %}
+
+    <div class="estadisticas">
+      <div class="estadistica"><span class="cifra">{{ stats.usuarios }}</span><span>Usuarios</span></div>
+      <div class="estadistica"><span class="cifra">{{ stats.grupos }}</span><span>Grupos</span></div>
+      <div class="estadistica"><span class="cifra">{{ stats.gastos }}</span><span>Gastos registrados</span></div>
+      <div class="estadistica"><span class="cifra">{{ stats.total_gastado|cop }}</span><span>Total gastado</span></div>
+      <div class="estadistica"><span class="cifra">{{ stats.pagos }}</span><span>Pagos entre personas</span></div>
+      <div class="estadistica"><span class="cifra">{{ stats.invitaciones_pendientes }}</span><span>Invitaciones pendientes</span></div>
+    </div>
+
+    <div class="panel-rejilla">
+      <section aria-labelledby="t-recientes">
+        <h2 id="t-recientes" style="font-size:1.4rem">Últimas personas registradas</h2>
+        <div class="tabla-envoltura">
+          <table class="tabla">
+            <thead><tr><th scope="col">Persona</th><th scope="col">Rol</th><th scope="col">Se unió</th></tr></thead>
+            <tbody>
+              {% for u in recientes %}
+              <tr>
+                <td><div class="tabla-nombre">{{ avatar(u.nombre, "", "avatar-chico") }}<div><b>{{ u.nombre }}</b><small>{{ u.email }}</small></div></div></td>
+                <td>{% if u.es_admin %}<span class="pill pill-acc">Administrador</span>{% else %}<span class="pill">Usuario</span>{% endif %}</td>
+                <td>{{ u.creado_en|hace }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <p style="margin-top:.8rem"><a href="{{ url_for('admin.usuarios') }}">Ver todos los usuarios</a></p>
+      </section>
+
+      <aside aria-labelledby="t-mensajes">
+        <h2 id="t-mensajes" style="font-size:1.4rem">Mensajes de contacto{% if stats.mensajes_sin_leer %} <span class="insignia" style="margin-left:.2rem" aria-label="{{ stats.mensajes_sin_leer }} sin leer">{{ stats.mensajes_sin_leer }}</span>{% endif %}</h2>
+        {% if mensajes %}
+        <div class="panel" style="padding:0;overflow:hidden">
+          {% for m in mensajes %}
+          <div class="mensaje-admin{% if not m.leido %} sin-leer{% endif %}">
+            <b>{{ m.nombre }}</b> <small class="texto-suave">{{ m.creado_en|hace }}</small>
+            <p class="sin-margen">{{ m.texto[:110] }}{% if m.texto|length > 110 %}…{% endif %}</p>
+          </div>
+          {% endfor %}
+        </div>
+        <p style="margin-top:.8rem"><a href="{{ url_for('admin.mensajes') }}">Ver todos los mensajes</a></p>
+        {% else %}
+        <p class="texto-suave">Todavía no hay mensajes.</p>
+        {% endif %}
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

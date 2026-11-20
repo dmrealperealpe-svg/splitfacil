@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Registrar pago{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-form">
+    <p class="migas"><a href="{{ url_for('grupos.detalle', grupo_id=grupo.id, vista='saldos') }}">‹ Saldos de {{ grupo.nombre }}</a></p>
+    <div class="panel">
+      <h1 style="font-size:2rem">Registrar un pago</h1>
+      <p class="texto-suave">Úsalo cuando una persona le pagó a otra (Nequi, transferencia o efectivo) para saldar lo que debía.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        <div class="campo{% if errores.get('de') %} campo-error{% endif %}">
+          <label class="etiqueta" for="de">¿Quién pagó?</label>
+          <select class="entrada" id="de" name="de">
+            {% for m in miembros %}<option value="{{ m.id }}"{% if m.id|string == valores.get("de")|string %} selected{% endif %}>{{ m.nombre }}{% if m.usuario_id == g.user.id %} (tú){% endif %}</option>{% endfor %}
+          </select>
+          {% if errores.get("de") %}<span class="error-campo">{{ errores.de }}</span>{% endif %}
+        </div>
+        <div class="campo{% if errores.get('a') %} campo-error{% endif %}">
+          <label class="etiqueta" for="a">¿A quién le pagó?</label>
+          <select class="entrada" id="a" name="a">
+            <option value="">Elige una persona</option>
+            {% for m in miembros %}<option value="{{ m.id }}"{% if m.id|string == valores.get("a")|string %} selected{% endif %}>{{ m.nombre }}{% if m.usuario_id == g.user.id %} (tú){% endif %}</option>{% endfor %}
+          </select>
+          {% if errores.get("a") %}<span class="error-campo">{{ errores.a }}</span>{% endif %}
+        </div>
+        <div class="fila-form">
+          {{ campo("monto", "Monto", valores.get("monto"), errores, tipo="monto", attrs={"placeholder": "0"}) }}
+          {{ campo("fecha", "Fecha", valores.get("fecha"), errores, tipo="date") }}
+        </div>
+        {{ campo("nota", "Nota (opcional)", valores.get("nota"), errores, attrs={"maxlength": 200, "placeholder": "Abono, saldo final..."}) }}
+        <div class="fila">
+          <button class="boton boton-primario boton-grande" type="submit">Registrar pago</button>
+          <a class="boton boton-suave" href="{{ url_for('grupos.detalle', grupo_id=grupo.id, vista='saldos') }}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

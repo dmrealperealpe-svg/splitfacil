@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Recuperar contraseña{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel">
+      <h1>Recupera tu contraseña</h1>
+      <p class="texto-suave">Escribe el correo con el que te registraste y te enviamos un enlace para crear una contraseña nueva. Dura una hora.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        {{ campo("email", "Correo electrónico", "", {}, tipo="email", attrs={"autocomplete": "email", "autofocus": "autofocus", "maxlength": 120}) }}
+        <button class="boton boton-primario boton-bloque boton-grande" type="submit">Enviar enlace</button>
+      </form>
+      {% if enlace_dev %}
+      <div class="token-nuevo" style="margin-top:1.2rem">
+        <b>Modo desarrollo</b>: como no hay un servidor de correo configurado, aquí está el enlace.
+        <code><a href="{{ enlace_dev }}">{{ enlace_dev }}</a></code>
+      </div>
+      {% endif %}
+    </div>
+    <p class="auth-pie"><a href="{{ url_for('auth.entrar') }}">Volver a iniciar sesión</a></p>
+  </div>
+</div>
+{% endblock %}

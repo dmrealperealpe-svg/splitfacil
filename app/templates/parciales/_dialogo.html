@@ -1,0 +1,11 @@
+{# Cuadro de confirmación para acciones que no se pueden deshacer (lo abre app.js) #}
+<dialog id="dialogo-confirmar" class="confirmar" aria-labelledby="confirmar-titulo" aria-describedby="confirmar-mensaje">
+  <form method="dialog">
+    <h2 id="confirmar-titulo">¿Seguro?</h2>
+    <p id="confirmar-mensaje" class="sin-margen texto-suave"></p>
+    <div class="fila">
+      <button class="boton boton-secundario" value="no">Cancelar</button>
+      <button id="confirmar-aceptar" class="boton boton-primario" value="si">Confirmar</button>
+    </div>
+  </form>
+</dialog>

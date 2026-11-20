@@ -1,0 +1,6 @@
+Flask>=3.0,<4
+python-dotenv>=1.0
+# gunicorn es el servidor de producción (en Windows no corre; allí usa `python run.py`)
+gunicorn>=22.0; sys_platform != "win32"
+# Solo si usas PostgreSQL / Supabase en vez de SQLite (descomenta la línea):
+psycopg[binary]>=3.1

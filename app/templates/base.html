@@ -1,0 +1,29 @@
+<!doctype html>
+{# Plantilla base (Tema 2): todas las páginas "extienden" este archivo y solo rellenan los bloques. #}
+<html lang="es" data-tema="{{ tema }}" data-acento="{{ acento }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="{% block descripcion %}SplitFácil: divide gastos en grupo sin hacer cuentas de cabeza. Cuentas claras, amistades largas.{% endblock %}">
+  {% set titulo_pagina = self.titulo()|trim %}
+  <title>{{ titulo_pagina ~ " | " if titulo_pagina }}SplitFácil</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/componentes.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  {% include "parciales/_barra.html" %}
+  {% include "parciales/_avisos.html" %}
+  <main id="contenido" tabindex="-1">
+    {% block contenido %}{% endblock %}
+  </main>
+  {% include "parciales/_pie.html" %}
+  {% include "parciales/_dialogo.html" %}
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

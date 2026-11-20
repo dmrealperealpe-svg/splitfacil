@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block titulo %}API para desarrolladores{% endblock %}
+
+{% block contenido %}
+{% set base = request.url_root.rstrip('/') %}
+<div class="pagina">
+  <div class="contenedor-texto">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>API de SplitFácil</h1>
+        <p class="subtitulo">Lee y crea gastos desde otras aplicaciones. Responde en JSON.</p>
+      </div>
+    </div>
+
+    <h2>Cómo autenticarte</h2>
+    <p>Inicia sesión, abre <a href="{{ url_for('perfil.ver') }}#api">tu perfil</a> y crea un token personal. Envíalo en cada petición:</p>
+    <pre class="codigo"><code>curl {{ base }}/api/grupos \
+  -H "Authorization: Bearer sf_tu_token"</code></pre>
+    <p>Si algo falla, la respuesta trae el código HTTP correcto y un JSON con el motivo:</p>
+    <pre class="codigo"><code>401 {"error": "No autenticado", "detalle": "Envía tu token..."}
+403 {"error": "Acceso denegado", "detalle": "No tienes permiso..."}
+404 {"error": "No encontramos esa página", ...}
+422 {"error": "Datos no válidos", "errores": {"monto": "El monto debe ser..."}}</code></pre>
+
+    <h2 style="margin-top:2.2rem">Endpoints</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/salud</code></div>
+      <p class="texto-suave">Público. Responde <code>{"estado": "ok"}</code> si la app y la base de datos funcionan.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/categorias</code></div>
+      <p class="texto-suave">Público. Las categorías disponibles para clasificar un gasto.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/yo</code></div>
+      <p class="texto-suave">Tus datos básicos.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/grupos</code></div>
+      <p class="texto-suave">Tus grupos con tu saldo en cada uno (positivo: te deben; negativo: debes).</p>
+<pre class="codigo"><code>{
+  "te_deben": 0,
+  "debes": 276667,
+  "grupos": [
+    {"id": 1, "nombre": "Apartamento 5B", "emoji": "🏠",
+     "n_miembros": 3, "n_gastos": 3, "tu_saldo": -276667}
+  ]
+}</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/grupos/&lt;id&gt;</code></div>
+      <p class="texto-suave">Detalle de un grupo: integrantes, total gastado y tu saldo.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/grupos/&lt;id&gt;/gastos</code></div>
+      <p class="texto-suave">Lista de gastos, paginada. Parámetros opcionales: <code>q</code> (buscar), <code>categoria</code>, <code>pagina</code>, <code>por_pagina</code> (máx. 50).</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-post">POST</span><code>/api/grupos/&lt;id&gt;/gastos</code></div>
+      <p class="texto-suave">Crea un gasto. Responde <code>201 Created</code> con la dirección del nuevo gasto en la cabecera <code>Location</code>. Si omites <code>participantes</code>, se reparte entre todo el grupo; si omites <code>pagado_por</code>, pagas tú.</p>
+<pre class="codigo"><code>curl -X POST {{ base }}/api/grupos/1/gastos \
+  -H "Authorization: Bearer sf_tu_token" \
+  -H "Content-Type: application/json" \
+  -d '{"descripcion": "Pizza", "monto": 60000, "categoria": "comida"}'</code></pre>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/grupos/&lt;id&gt;/gastos/&lt;id&gt;</code></div>
+      <p class="texto-suave">Un gasto con su reparto por persona.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-delete">DELETE</span><code>/api/grupos/&lt;id&gt;/gastos/&lt;id&gt;</code></div>
+      <p class="texto-suave">Borra un gasto (solo quien lo creó o el propietario del grupo). Responde <code>204 No Content</code>.</p>
+    </div>
+
+    <div class="endpoint">
+      <div class="endpoint-cabecera"><span class="metodo metodo-get">GET</span><code>/api/grupos/&lt;id&gt;/saldos</code></div>
+      <p class="texto-suave">El saldo de cada integrante y la lista mínima de pagos para dejar todo en cero.</p>
+    </div>
+
+    <p class="texto-suave">Los montos son enteros en pesos colombianos (sin decimales).</p>
+  </div>
+</div>
+{% endblock %}

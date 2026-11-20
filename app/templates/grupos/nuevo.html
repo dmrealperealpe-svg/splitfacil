@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Nuevo grupo{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-form">
+    <p class="migas"><a href="{{ url_for('grupos.panel') }}">‹ Mis grupos</a></p>
+    <div class="panel">
+      <h1 style="font-size:2rem">Crea un grupo</h1>
+      <p class="texto-suave">Un grupo es un plan que comparten: la casa, un viaje, el asado del sábado.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        {% include "grupos/_campos_grupo.html" %}
+        <div class="campo">
+          <label class="etiqueta" for="invitados">¿Quién más está en el grupo?</label>
+          <textarea class="entrada" id="invitados" name="invitados" rows="2" placeholder="Camila, Jorge, Laura">{{ valores.get("invitados", "") }}</textarea>
+          <span class="ayuda-campo">Escribe los nombres separados por coma. Tú entras solo. Después puedes invitarlos para que vean el grupo desde su cuenta.</span>
+        </div>
+        <div class="fila">
+          <button class="boton boton-primario boton-grande" type="submit">Crear grupo</button>
+          <a class="boton boton-suave" href="{{ url_for('grupos.panel') }}">Cancelar</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

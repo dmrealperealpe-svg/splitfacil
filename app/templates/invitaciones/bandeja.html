@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "macros.html" import boton_post %}
+{% block titulo %}Invitaciones{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor-texto">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Invitaciones</h1>
+        <p class="subtitulo">Grupos a los que otras personas te invitaron.</p>
+      </div>
+    </div>
+
+    {% if pendientes %}
+    <div class="panel">
+      <h2>Por responder</h2>
+      {% for i in pendientes %}
+      <div class="persona">
+        <span class="grupo-emoji" aria-hidden="true">{{ i.grupo_emoji }}</span>
+        <div class="persona-datos">
+          <b>{{ i.grupo_nombre }}</b>
+          <small>{{ i.invitado_por_nombre or "Alguien" }} te invitó, {{ i.creado_en|hace }}</small>
+        </div>
+        <div class="fila">
+          {{ boton_post(url_for("invitaciones.aceptar", invitacion_id=i.id), "Aceptar", "boton boton-primario boton-chico") }}
+          {{ boton_post(url_for("invitaciones.rechazar", invitacion_id=i.id), "Rechazar", "boton boton-secundario boton-chico") }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="vacio">
+      <span class="vacio-emoji" aria-hidden="true">✉️</span>
+      <h3>No tienes invitaciones pendientes</h3>
+      <p>Cuando alguien te invite a un grupo con tu correo, aparecerá aquí.</p>
+      <div class="fila"><a class="boton boton-secundario" href="{{ url_for('grupos.panel') }}">Ir a mis grupos</a></div>
+    </div>
+    {% endif %}
+
+    <p class="texto-suave" style="margin-top:1.2rem">¿Quieres invitar a alguien? Entra a un grupo y abre la pestaña «Personas».</p>
+
+    {% if historial %}
+    <div class="panel">
+      <h2>Anteriores</h2>
+      {% for i in historial %}
+      <div class="persona">
+        <span class="grupo-emoji" aria-hidden="true" style="width:2.6rem;height:2.6rem;font-size:1.4rem">{{ i.grupo_emoji }}</span>
+        <div class="persona-datos"><b>{{ i.grupo_nombre }}</b><small>{{ i.creado_en|hace }}</small></div>
+        <span class="pill{% if i.estado == 'aceptada' %} pill-acc{% endif %}">{{ {"aceptada": "Aceptada", "rechazada": "Rechazada", "cancelada": "Cancelada"}.get(i.estado, i.estado) }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

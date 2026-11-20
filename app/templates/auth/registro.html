@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Crear cuenta{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel">
+      <h1>Crea tu cuenta</h1>
+      <p class="texto-suave">Tarda menos de un minuto. Es gratis.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        <input type="hidden" name="next" value="{{ destino }}">
+        {{ campo("nombre", "¿Cómo te llamas?", valores.get("nombre"), errores, ayuda="Así te verán las demás personas del grupo.", attrs={"autocomplete": "name", "autofocus": "autofocus", "maxlength": 80}) }}
+        {{ campo("email", "Correo electrónico", valores.get("email"), errores, tipo="email", attrs={"autocomplete": "email", "maxlength": 120}) }}
+        {{ campo("clave", "Contraseña", "", errores, tipo="password", ayuda="Mínimo 8 caracteres, con letras y números.", attrs={"autocomplete": "new-password"}) }}
+        {{ campo("clave2", "Repite la contraseña", "", errores, tipo="password", attrs={"autocomplete": "new-password"}) }}
+        <button class="boton boton-primario boton-bloque boton-grande" type="submit">Crear mi cuenta</button>
+      </form>
+    </div>
+    <p class="auth-pie">¿Ya tienes cuenta? <a href="{{ url_for('auth.entrar', next=destino or None) }}">Inicia sesión</a></p>
+  </div>
+</div>
+{% endblock %}

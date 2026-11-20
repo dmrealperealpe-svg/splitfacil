@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar, boton_post, paginacion %}
+{% block titulo %}Usuarios{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Usuarios</h1>
+        <p class="subtitulo">{{ usuarios.total }} {{ "persona" if usuarios.total == 1 else "personas" }}{% if q %} con «{{ q }}»{% endif %}.</p>
+      </div>
+    </div>
+    {% include "admin/_pestanas.html" %}
+
+    <form class="filtros" method="get" role="search">
+      <input class="entrada entrada-buscar" type="search" name="q" value="{{ q }}" placeholder="Buscar por nombre o correo" aria-label="Buscar usuarios" maxlength="60">
+      <button class="boton boton-secundario" type="submit">Buscar</button>
+      {% if q %}<a class="boton boton-suave" href="{{ url_for('admin.usuarios') }}">Quitar búsqueda</a>{% endif %}
+    </form>
+
+    {% if usuarios.items %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr><th scope="col">Persona</th><th scope="col">Rol</th><th scope="col">Estado</th><th scope="col" class="num">Grupos</th><th scope="col">Último acceso</th><th scope="col"><span class="oculto-visual">Acciones</span></th></tr>
+        </thead>
+        <tbody>
+          {% for u in usuarios.items %}
+          {% set campos = {"q": q, "pagina": usuarios.pagina} %}
+          <tr>
+            <td><div class="tabla-nombre">{{ avatar(u.nombre, "", "avatar-chico") }}<div><b>{{ u.nombre }}</b>{% if u.id == g.user.id %} <span class="pill pill-acc">Tú</span>{% endif %}<small>{{ u.email }}</small></div></div></td>
+            <td>{% if u.es_admin %}<span class="pill pill-acc">Administrador</span>{% else %}<span class="pill">Usuario</span>{% endif %}</td>
+            <td>{% if u.activo %}Activa{% else %}<span class="pill pill-aviso">Desactivada</span>{% endif %}</td>
+            <td class="num">{{ u.n_grupos }}</td>
+            <td>{{ u.ultimo_acceso|hace if u.ultimo_acceso else "Nunca" }}</td>
+            <td class="acciones">
+              {% if u.id != g.user.id %}
+                {{ boton_post(url_for("admin.cambiar_rol", usuario_id=u.id), "Quitar admin" if u.es_admin else "Hacer admin", "boton boton-suave boton-chico", campos=campos,
+                    confirmar=("Dejará de administrar la app." if u.es_admin else "Podrá ver y gestionar a todos los usuarios y grupos."), titulo="¿Cambiar el rol de " ~ u.nombre ~ "?", aceptar="Cambiar rol") }}
+                {{ boton_post(url_for("admin.cambiar_activo", usuario_id=u.id), "Activar" if not u.activo else "Desactivar", "boton boton-suave boton-chico", campos=campos) }}
+                {{ boton_post(url_for("admin.eliminar_usuario", usuario_id=u.id), "Eliminar", "boton boton-peligro boton-chico", campos=campos,
+                    confirmar="Se borra su cuenta y su perfil. No se puede deshacer.", titulo="¿Eliminar a " ~ u.nombre ~ "?", aceptar="Eliminar", peligro=True) }}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ paginacion(usuarios) }}
+    {% else %}
+    <div class="vacio"><span class="vacio-emoji" aria-hidden="true">🔎</span><h3>No encontramos a nadie con esa búsqueda</h3></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% from "macros.html" import paginacion, boton_post %}
+{% set meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"] %}
+
+<form class="filtros" method="get" role="search">
+  <input type="hidden" name="vista" value="gastos">
+  <input class="entrada entrada-buscar" type="search" name="q" value="{{ q }}" placeholder="Buscar un gasto" aria-label="Buscar un gasto" maxlength="60">
+  <select class="entrada" name="categoria" aria-label="Filtrar por categoría">
+    <option value="">Todas las categorías</option>
+    {% for clave, (nombre, emoji) in CATEGORIAS.items() %}
+    <option value="{{ clave }}"{% if clave == categoria %} selected{% endif %}>{{ emoji }} {{ nombre }}</option>
+    {% endfor %}
+  </select>
+  <button class="boton boton-secundario" type="submit">Filtrar</button>
+  {% if q or categoria %}<a class="boton boton-suave" href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">Quitar filtros</a>{% endif %}
+</form>
+
+{% if gastos.items %}
+<div class="libro">
+  {% for ga in gastos.items %}
+  {% set cat = CATEGORIAS.get(ga.categoria, CATEGORIAS["otros"]) %}
+  <article class="gasto">
+    <div class="gasto-fecha"><b>{{ ga.fecha[8:10]|int }}</b><span>{{ meses[ga.fecha[5:7]|int - 1] }}</span></div>
+    <div class="gasto-cuerpo">
+      <h3><a class="enlace-gasto" href="{{ url_for('grupos.gasto_ver', grupo_id=grupo.id, gasto_id=ga.id) }}">{{ ga.descripcion }}</a>{% if ga.n_comentarios %} <span class="pill" title="Comentarios"><span aria-hidden="true">💬</span> {{ ga.n_comentarios }}<span class="oculto-visual"> comentarios</span></span>{% endif %}</h3>
+      <p><span aria-hidden="true">{{ cat[1] }}</span> {{ cat[0] }}. Pagó {{ ga.pagador }}, entre {{ ga.n_participantes }}{% if ga.tipo_division == "exacta" %}, montos exactos{% endif %}.</p>
+      {% if ga.nota %}<p>{{ ga.nota }}</p>{% endif %}
+    </div>
+    <div class="gasto-monto">
+      <span class="cifra">{{ ga.monto|cop }}</span>
+      <small>{% if ga.mi_parte %}tu parte: {{ ga.mi_parte|cop }}{% else %}tú no participas{% endif %}</small>
+    </div>
+    {% if ga.puedo_editar %}
+    <details class="menu menu-fila">
+      <summary aria-label="Opciones de {{ ga.descripcion }}"><span aria-hidden="true">⋮</span></summary>
+      <div class="menu-panel">
+        <a class="menu-item" href="{{ url_for('grupos.gasto_editar', grupo_id=grupo.id, gasto_id=ga.id) }}">Editar</a>
+        {{ boton_post(url_for('grupos.gasto_eliminar', grupo_id=grupo.id, gasto_id=ga.id), "Eliminar", "menu-item menu-item-peligro",
+            confirmar="Se borrará «" ~ ga.descripcion ~ "» y los saldos se recalcularán.", titulo="¿Eliminar el gasto?", aceptar="Eliminar", peligro=True) }}
+      </div>
+    </details>
+    {% else %}<span></span>{% endif %}
+  </article>
+  {% endfor %}
+</div>
+{{ paginacion(gastos) }}
+
+{% elif q or categoria %}
+<div class="vacio">
+  <span class="vacio-emoji" aria-hidden="true">🔎</span>
+  <h3>No encontramos gastos con ese filtro</h3>
+  <p>Prueba con otra palabra o quita los filtros.</p>
+</div>
+{% else %}
+<div class="vacio">
+  <span class="vacio-emoji" aria-hidden="true">🧾</span>
+  <h3>Aún no hay gastos en este grupo</h3>
+  <p>Anota el primero y SplitFácil calcula cuánto le toca a cada persona.</p>
+  <div class="fila"><a class="boton boton-primario" href="{{ url_for('grupos.gasto_nuevo', grupo_id=grupo.id) }}">Agregar el primer gasto</a></div>
+</div>
+{% endif %}

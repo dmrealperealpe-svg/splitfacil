@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "macros.html" import csrf %}
+{% block titulo %}Invitación a un grupo{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel invitacion-tarjeta">
+      {% if estado == "pendiente" %}
+        <span class="grupo-emoji" aria-hidden="true">{{ invitacion.grupo_emoji }}</span>
+        <h1 style="font-size:2rem">Te invitaron a «{{ invitacion.grupo_nombre }}»</h1>
+        <p class="texto-suave">{{ invitacion.invitado_por_nombre or "Alguien" }} quiere llevar las cuentas contigo. Al unirte verás los gastos y los saldos del grupo.</p>
+        <form method="post" class="fila">
+          {{ csrf() }}
+          <button class="boton boton-primario boton-grande" type="submit" name="accion" value="aceptar">Unirme al grupo</button>
+          <button class="boton boton-suave" type="submit" name="accion" value="rechazar">No, gracias</button>
+        </form>
+      {% elif estado == "cerrada" %}
+        <span class="grupo-emoji" aria-hidden="true">🚪</span>
+        <h1 style="font-size:2rem">Esta invitación ya no está disponible</h1>
+        <p class="texto-suave">Ya se usó, se canceló o se rechazó. Pídele a quien te invitó que te mande una nueva.</p>
+        <div class="fila"><a class="boton boton-primario" href="{{ url_for('grupos.panel') }}">Ir a mis grupos</a></div>
+      {% else %}
+        <span class="grupo-emoji" aria-hidden="true">🔑</span>
+        <h1 style="font-size:2rem">Esta invitación es para otra cuenta</h1>
+        <p class="texto-suave">Fue creada para un correo distinto al de tu sesión. Cierra sesión y entra con la cuenta invitada, o pídele a quien te invitó un enlace nuevo.</p>
+        <div class="fila"><a class="boton boton-primario" href="{{ url_for('grupos.panel') }}">Ir a mis grupos</a></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

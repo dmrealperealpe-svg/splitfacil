@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Nueva contraseña{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel">
+      <h1>Crea una contraseña nueva</h1>
+      <p class="texto-suave">Elige una que no uses en otros sitios.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        {{ campo("clave", "Contraseña nueva", "", errores, tipo="password", ayuda="Mínimo 8 caracteres, con letras y números.", attrs={"autocomplete": "new-password", "autofocus": "autofocus"}) }}
+        {{ campo("clave2", "Repite la contraseña", "", errores, tipo="password", attrs={"autocomplete": "new-password"}) }}
+        <button class="boton boton-primario boton-bloque boton-grande" type="submit">Guardar contraseña</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+{# Navegación interna de la zona de administración #}
+<nav class="pestanas" aria-label="Administración">
+  {% for endpoint, nombre in [("admin.panel", "Resumen"), ("admin.usuarios", "Usuarios"), ("admin.grupos", "Grupos"), ("admin.mensajes", "Mensajes")] %}
+  <a class="pestana" href="{{ url_for(endpoint) }}"{% if request.endpoint == endpoint %} aria-current="page"{% endif %}>{{ nombre }}</a>
+  {% endfor %}
+</nav>

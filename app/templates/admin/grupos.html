@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "macros.html" import boton_post, paginacion %}
+{% block titulo %}Grupos{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Grupos</h1>
+        <p class="subtitulo">{{ grupos.total }} {{ "grupo" if grupos.total == 1 else "grupos" }}{% if q %} con «{{ q }}»{% endif %}.</p>
+      </div>
+    </div>
+    {% include "admin/_pestanas.html" %}
+
+    <form class="filtros" method="get" role="search">
+      <input class="entrada entrada-buscar" type="search" name="q" value="{{ q }}" placeholder="Buscar por nombre del grupo" aria-label="Buscar grupos" maxlength="60">
+      <button class="boton boton-secundario" type="submit">Buscar</button>
+      {% if q %}<a class="boton boton-suave" href="{{ url_for('admin.grupos') }}">Quitar búsqueda</a>{% endif %}
+    </form>
+
+    {% if grupos.items %}
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead>
+          <tr><th scope="col">Grupo</th><th scope="col">Creado por</th><th scope="col" class="num">Personas</th><th scope="col" class="num">Gastos</th><th scope="col" class="num">Total</th><th scope="col">Creado</th><th scope="col"><span class="oculto-visual">Acciones</span></th></tr>
+        </thead>
+        <tbody>
+          {% for gr in grupos.items %}
+          <tr>
+            <td><span aria-hidden="true">{{ gr.emoji }}</span> <b>{{ gr.nombre }}</b></td>
+            <td>{{ gr.creador or "Cuenta eliminada" }}</td>
+            <td class="num">{{ gr.n_miembros }}</td>
+            <td class="num">{{ gr.n_gastos }}</td>
+            <td class="num"><span class="cifra">{{ gr.total|cop }}</span></td>
+            <td>{{ gr.creado_en|hace }}</td>
+            <td class="acciones">
+              {{ boton_post(url_for("admin.eliminar_grupo", grupo_id=gr.id), "Eliminar", "boton boton-peligro boton-chico", campos={"q": q, "pagina": grupos.pagina},
+                  confirmar="Se borran «" ~ gr.nombre ~ "», sus gastos y su historial para todas las personas.", titulo="¿Eliminar el grupo?", aceptar="Eliminar", peligro=True) }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {{ paginacion(grupos) }}
+    {% else %}
+    <div class="vacio"><span class="vacio-emoji" aria-hidden="true">🔎</span><h3>No hay grupos para mostrar</h3></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

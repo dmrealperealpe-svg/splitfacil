@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "macros.html" import boton_post, paginacion %}
+{% block titulo %}Mensajes{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="cabecera-pagina">
+      <div>
+        <h1>Mensajes de contacto</h1>
+        <p class="subtitulo">Lo que escribe la gente desde la página de contacto.</p>
+      </div>
+    </div>
+    {% include "admin/_pestanas.html" %}
+
+    {% if mensajes.items %}
+    <div class="panel" style="padding:0;overflow:hidden">
+      {% for m in mensajes.items %}
+      <article class="mensaje-admin{% if not m.leido %} sin-leer{% endif %}">
+        <div class="fila-entre">
+          <div><b>{{ m.nombre }}</b> <a href="mailto:{{ m.email }}">{{ m.email }}</a></div>
+          <small class="texto-suave">{{ m.creado_en|hace }}</small>
+        </div>
+        <p>{{ m.texto }}</p>
+        <div class="fila">
+          {{ boton_post(url_for("admin.marcar_leido", mensaje_id=m.id), "Marcar como no leído" if m.leido else "Marcar como leído", "boton boton-secundario boton-chico",
+              campos={"leido": "0" if m.leido else "1", "pagina": mensajes.pagina}) }}
+          {{ boton_post(url_for("admin.eliminar_mensaje", mensaje_id=m.id), "Eliminar", "boton boton-peligro boton-chico", campos={"pagina": mensajes.pagina},
+              confirmar="Se borra este mensaje.", titulo="¿Eliminar el mensaje?", aceptar="Eliminar", peligro=True) }}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {{ paginacion(mensajes) }}
+    {% else %}
+    <div class="vacio"><span class="vacio-emoji" aria-hidden="true">📭</span><h3>No hay mensajes</h3><p>Cuando alguien escriba desde la página de contacto, aparecerá aquí.</p></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

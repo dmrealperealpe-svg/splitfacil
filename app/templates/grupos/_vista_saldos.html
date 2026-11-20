@@ -1,0 +1,73 @@
+{% from "macros.html" import avatar, saldo_texto, boton_post %}
+
+<section class="panel" aria-labelledby="t-saldos">
+  <h2 id="t-saldos">Cómo está cada persona</h2>
+  {% if total == 0 and not pagos %}
+  <p class="texto-suave sin-margen">Cuando agregues gastos, aquí verás quién le debe a quién.</p>
+  {% else %}
+  <p class="saldo-leyenda" aria-hidden="true"><span>◂ Debe</span><span>Le deben ▸</span></p>
+  <ul class="saldos">
+    {% for m in miembros %}
+    {% set s = saldos[m.id] %}
+    <li class="saldo-fila">
+      <div class="saldo-quien">{{ avatar(m.nombre, m.emoji, "avatar-chico") }}<span>{{ m.nombre }}{% if m.id == yo.id %} (tú){% endif %}</span></div>
+      <div class="barra-div" aria-hidden="true">{% if s != 0 %}<i class="{{ 'es-favor' if s > 0 else 'es-debe' }}" style="--w: {{ (s|abs / max_saldo)|round(3) }}"></i>{% endif %}</div>
+      <div class="saldo-texto">{{ saldo_texto(s, "te deben" if m.id == yo.id else "le deben", "debes" if m.id == yo.id else "debe", "estás al día" if m.id == yo.id else "al día") }}</div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<section class="panel" aria-labelledby="t-saldar">
+  <h2 id="t-saldar">Para dejar todo en cero</h2>
+  {% if sugeridos %}
+  <p class="texto-suave">Estos pocos pagos saldan todas las cuentas del grupo.</p>
+  {% for s in sugeridos %}
+  <div class="saldar">
+    <div class="saldar-flujo">
+      <b>{{ s.de.nombre }}{% if s.de.id == yo.id %} (tú){% endif %}</b>
+      <svg class="saldar-flecha" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-label="le paga a" role="img"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <b>{{ s.a.nombre }}{% if s.a.id == yo.id %} (tú){% endif %}</b>
+    </div>
+    <span class="cifra">{{ s.monto|cop }}</span>
+    <a class="boton boton-secundario boton-chico" href="{{ url_for('grupos.pago_nuevo', grupo_id=grupo.id, de=s.de.id, a=s.a.id, monto=s.monto) }}">Registrar pago</a>
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="sin-margen"><b>Todo está en cero.</b> <span class="texto-suave">Nadie le debe nada a nadie en este grupo.</span></p>
+  {% endif %}
+</section>
+
+{% if categorias %}
+<section class="panel" aria-labelledby="t-cats">
+  <h2 id="t-cats">En qué se ha gastado</h2>
+  <div class="cats">
+    {% for c in categorias %}
+    <div class="cat-fila">
+      <span><span aria-hidden="true">{{ c.emoji }}</span> {{ c.etiqueta }}</span>
+      <div class="cat-barra" aria-hidden="true"><i style="--w: {{ c.porcentaje }}"></i></div>
+      <span class="cifra">{{ c.total|cop }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<section class="panel" aria-labelledby="t-pagos">
+  <h2 id="t-pagos">Pagos registrados</h2>
+  {% if pagos %}
+  {% for p in pagos %}
+  <div class="pago-fila">
+    <p class="espacio"><b>{{ p.de_nombre }}</b> le pagó a <b>{{ p.a_nombre }}</b>{% if p.nota %}. <span class="texto-suave">{{ p.nota }}</span>{% endif %}<br><small class="texto-suave">{{ p.fecha|fecha }}</small></p>
+    <span class="cifra">{{ p.monto|cop }}</span>
+    {% if p.puedo_borrar %}
+    {{ boton_post(url_for("grupos.pago_eliminar", grupo_id=grupo.id, pago_id=p.id), "Eliminar", "boton boton-suave boton-chico",
+        confirmar="Se borrará este pago de " ~ (p.monto|cop) ~ " y los saldos volverán a como estaban.", titulo="¿Eliminar el pago?", aceptar="Eliminar", peligro=True) }}
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% else %}
+  <p class="texto-suave sin-margen">Todavía no se ha registrado ningún pago. Cuando alguien le pague a otra persona, anótalo aquí para que los saldos se actualicen.</p>
+  {% endif %}
+</section>

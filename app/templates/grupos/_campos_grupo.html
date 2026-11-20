@@ -1,0 +1,12 @@
+{# Campos que comparten "Nuevo grupo" y "Editar grupo" (Tema 2: include) #}
+{% from "macros.html" import campo %}
+{{ campo("nombre", "Nombre del grupo", valores.get("nombre"), errores, ayuda="Por ejemplo: Apartamento 5B, Viaje a Cartagena.", attrs={"maxlength": 80, "autofocus": "autofocus"}) }}
+{{ campo("descripcion", "Descripción (opcional)", valores.get("descripcion"), errores, attrs={"maxlength": 200}) }}
+<fieldset class="campo">
+  <legend class="etiqueta">Ícono</legend>
+  <div class="opciones">
+    {% for e in EMOJIS_GRUPO %}
+    <label class="opcion opcion-emoji"><input type="radio" name="emoji" value="{{ e }}"{% if e == valores.get("emoji") %} checked{% endif %}><span>{{ e }}</span></label>
+    {% endfor %}
+  </div>
+</fieldset>

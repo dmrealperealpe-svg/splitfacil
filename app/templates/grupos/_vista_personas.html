@@ -1,0 +1,75 @@
+{% from "macros.html" import avatar, csrf, boton_post, saldo_texto %}
+
+<section class="panel" aria-labelledby="t-integrantes">
+  <h2 id="t-integrantes">Integrantes</h2>
+  {% for m in miembros %}
+  <div class="persona">
+    {{ avatar(m.nombre, m.emoji) }}
+    <div class="persona-datos">
+      <b>{{ m.nombre }}</b>
+      {% if m.id == yo.id %}<span class="pill pill-acc">Tú</span>{% endif %}
+      {% if m.es_propietario %}<span class="pill">Propietario</span>{% endif %}
+      {% if not m.tiene_cuenta %}<span class="pill pill-aviso">Sin cuenta</span>{% endif %}
+      {% if m.email and m.id == yo.id %}<small>{{ m.email }}</small>{% endif %}
+    </div>
+    {% if soy_propietario and not m.es_propietario %}
+    <div class="fila">
+      {% if m.tiene_cuenta %}
+      {{ boton_post(url_for("grupos.propietario", grupo_id=grupo.id, miembro_id=m.id), "Hacer propietario", "boton boton-suave boton-chico",
+          confirmar="Dejarás de ser propietario/a y " ~ m.nombre ~ " podrá editar o eliminar el grupo.", titulo="¿Transferir la propiedad?", aceptar="Transferir") }}
+      {% endif %}
+      {{ boton_post(url_for("grupos.quitar_miembro", grupo_id=grupo.id, miembro_id=m.id), "Quitar", "boton boton-peligro boton-chico",
+          confirmar="¿Quitar a " ~ m.nombre ~ " del grupo?", titulo="Quitar del grupo", aceptar="Quitar", peligro=True) }}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+
+<section class="panel" id="invitar" aria-labelledby="t-invitar">
+  <h2 id="t-invitar">Invitar a otra persona</h2>
+  <p class="texto-suave">Con su correo, la invitación le aparece en la bandeja cuando entre a SplitFácil. Sin correo, creas un enlace para mandarlo por WhatsApp o donde quieras.</p>
+  <form method="post" action="{{ url_for('invitaciones.invitar', grupo_id=grupo.id) }}" novalidate>
+    {{ csrf() }}
+    <div class="campo">
+      <label class="etiqueta" for="inv-email">Correo de la persona (opcional)</label>
+      <input class="entrada" id="inv-email" name="email" type="email" maxlength="120" autocomplete="off" placeholder="amiga@correo.com">
+    </div>
+    {% if invitados_sin_cuenta %}
+    <div class="campo">
+      <label class="etiqueta" for="inv-miembro">¿Es alguien que ya está en el grupo sin cuenta?</label>
+      <select class="entrada" id="inv-miembro" name="miembro_id">
+        <option value="">No, es una persona nueva</option>
+        {% for m in invitados_sin_cuenta %}<option value="{{ m.id }}">Sí, es {{ m.nombre }}</option>{% endfor %}
+      </select>
+      <span class="ayuda-campo">Si aceptan, conserva todos sus gastos y pagos.</span>
+    </div>
+    {% endif %}
+    <button class="boton boton-primario" type="submit">Crear invitación</button>
+  </form>
+
+  {% if invitaciones %}
+  <h3 style="margin-top:1.8rem;font-size:1.1rem">Invitaciones pendientes</h3>
+  {% for inv in invitaciones %}
+  <div class="invitacion-fila">
+    <p><b>{{ inv.email or "Enlace para compartir" }}</b>{% if inv.miembro_id %} <span class="pill">para alguien del grupo</span>{% endif %}<br><small class="texto-suave">Creada {{ inv.creado_en|hace }}</small></p>
+    <div class="copiar">
+      <input class="entrada" id="enlace-{{ inv.id }}" type="text" readonly value="{{ url_for('invitaciones.unirse', token=inv.token, _external=True) }}" aria-label="Enlace de invitación">
+      <button class="boton boton-secundario" type="button" data-copiar="enlace-{{ inv.id }}">Copiar</button>
+      {{ boton_post(url_for("invitaciones.cancelar", invitacion_id=inv.id), "Cancelar", "boton boton-suave") }}
+    </div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</section>
+
+<section class="panel" aria-labelledby="t-sin-cuenta">
+  <h2 id="t-sin-cuenta">Agregar a alguien sin cuenta</h2>
+  <p class="texto-suave">Solo con su nombre. Tú llevas sus cuentas hasta que quiera unirse.</p>
+  <form method="post" action="{{ url_for('grupos.invitado_nuevo', grupo_id=grupo.id) }}" class="fila" novalidate>
+    {{ csrf() }}
+    <label class="oculto-visual" for="nuevo-nombre">Nombre de la persona</label>
+    <input class="entrada" style="flex:1 1 14rem;width:auto" id="nuevo-nombre" name="nombre" maxlength="80" placeholder="Nombre" autocomplete="off">
+    <button class="boton boton-secundario" type="submit">Agregar</button>
+  </form>
+</section>

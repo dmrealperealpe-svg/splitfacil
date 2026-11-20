@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, avatar, csrf, boton_post %}
+{% set colores = {"verde": "#007654", "azul": "#0961BB", "violeta": "#6B41B9", "naranja": "#B64E10", "rosa": "#BC2B74"} %}
+{% block titulo %}Mi perfil{% endblock %}
+
+{% block contenido %}
+<div class="pagina">
+  <div class="contenedor">
+    <div class="perfil-cabecera" style="margin-bottom:2rem">
+      {{ avatar(g.user.nombre, g.user.emoji, "avatar-grande") }}
+      <div>
+        <h1>{{ g.user.nombre }}</h1>
+        <p class="subtitulo sin-margen">{{ g.user.email }}{% if g.user.es_admin %} <span class="pill pill-acc">Administrador</span>{% endif %}</p>
+        <div class="perfil-cifras">
+          <span>{{ n_grupos }} {{ "grupo" if n_grupos == 1 else "grupos" }}</span>
+          <span>Te uniste el {{ g.user.creado_en|fecha }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="perfil-rejilla">
+      <nav class="perfil-nav" aria-label="Secciones del perfil">
+        <a href="#datos">Mis datos</a>
+        <a href="#apariencia">Apariencia</a>
+        <a href="#seguridad">Seguridad</a>
+        <a href="#api">Acceso por API</a>
+        <a href="#peligro">Eliminar cuenta</a>
+      </nav>
+
+      <div>
+        <section class="panel perfil-seccion" id="datos" aria-labelledby="t-datos">
+          <h2 id="t-datos">Mis datos</h2>
+          <form method="post" action="{{ url_for('perfil.actualizar_datos') }}" novalidate>
+            {{ csrf() }}
+            {{ campo("nombre", "Nombre", g.user.nombre, {}, ayuda="Así te ven las demás personas en los grupos.", attrs={"maxlength": 80, "autocomplete": "name"}) }}
+            {{ campo("bio", "Sobre ti (opcional)", g.user.bio, {}, tipo="textarea", attrs={"maxlength": 200, "rows": 3, "placeholder": "Una frase corta"}) }}
+            <fieldset class="campo">
+              <legend class="etiqueta">Tu avatar</legend>
+              <div class="opciones">
+                <label class="opcion"><input type="radio" name="emoji" value=""{% if not g.user.emoji %} checked{% endif %}><span>Mis iniciales</span></label>
+                {% for e in EMOJIS_PERFIL if e %}
+                <label class="opcion opcion-emoji"><input type="radio" name="emoji" value="{{ e }}"{% if e == g.user.emoji %} checked{% endif %}><span>{{ e }}</span></label>
+                {% endfor %}
+              </div>
+            </fieldset>
+            <button class="boton boton-primario" type="submit">Guardar cambios</button>
+          </form>
+        </section>
+
+        <section class="panel perfil-seccion" id="apariencia" aria-labelledby="t-apariencia">
+          <h2 id="t-apariencia">Apariencia</h2>
+          <p class="texto-suave">Elige cómo quieres ver SplitFácil. También puedes cambiarlo rápido con el ícono de paleta de la barra superior.</p>
+          <form method="post" action="{{ url_for('perfil.actualizar_apariencia') }}">
+            {{ csrf() }}
+            <fieldset class="campo">
+              <legend class="etiqueta">Tema</legend>
+              <div class="opciones">
+                {% for clave, nombre in TEMAS %}
+                <label class="opcion"><input type="radio" name="tema" value="{{ clave }}"{% if clave == tema %} checked{% endif %}><span>{{ nombre }}</span></label>
+                {% endfor %}
+              </div>
+              <span class="ayuda-campo">«Automático» sigue la configuración de claro u oscuro de tu dispositivo.</span>
+            </fieldset>
+            <fieldset class="campo">
+              <legend class="etiqueta">Color</legend>
+              <div class="opciones">
+                {% for clave, nombre in ACENTOS %}
+                <label class="opcion"><input type="radio" name="acento" value="{{ clave }}"{% if clave == acento %} checked{% endif %}><span><i class="punto" style="background: {{ colores[clave] }}"></i>{{ nombre }}</span></label>
+                {% endfor %}
+              </div>
+            </fieldset>
+            <button class="boton boton-primario" type="submit">Guardar apariencia</button>
+          </form>
+        </section>
+
+        <section class="panel perfil-seccion" id="seguridad" aria-labelledby="t-seguridad">
+          <h2 id="t-seguridad">Cambiar contraseña</h2>
+          <form method="post" action="{{ url_for('perfil.cambiar_clave') }}" novalidate>
+            {{ csrf() }}
+            {{ campo("clave_actual", "Contraseña actual", "", {}, tipo="password", attrs={"autocomplete": "current-password"}) }}
+            {{ campo("clave_nueva", "Contraseña nueva", "", {}, tipo="password", ayuda="Mínimo 8 caracteres, con letras y números.", attrs={"autocomplete": "new-password"}) }}
+            {{ campo("clave_nueva2", "Repite la contraseña nueva", "", {}, tipo="password", attrs={"autocomplete": "new-password"}) }}
+            <button class="boton boton-primario" type="submit">Cambiar contraseña</button>
+          </form>
+        </section>
+
+        <section class="panel perfil-seccion" id="api" aria-labelledby="t-api">
+          <h2 id="t-api">Acceso por API</h2>
+          <p class="texto-suave">Un token personal permite que otra aplicación lea y cree gastos en tu nombre. Trátalo como una contraseña. <a href="{{ url_for('principal.desarrolladores') }}">Ver la documentación</a>.</p>
+          {% if token_nuevo %}
+          <div class="token-nuevo">
+            <b>Tu token nuevo.</b> Cópialo ahora: por seguridad no volverá a mostrarse.
+            <code id="token-valor">{{ token_nuevo }}</code>
+            <button class="boton boton-secundario boton-chico" style="margin-top:.6rem" type="button" data-copiar="token-valor">Copiar token</button>
+          </div>
+          {% endif %}
+          <div class="fila">
+            {% if g.user.token_api_hash %}
+              <span class="pill pill-acc">Tienes un token activo</span>
+              {{ boton_post(url_for("perfil.token_crear"), "Crear uno nuevo", "boton boton-secundario",
+                  confirmar="El token anterior dejará de funcionar.", titulo="¿Reemplazar el token?", aceptar="Crear nuevo") }}
+              {{ boton_post(url_for("perfil.token_revocar"), "Revocar", "boton boton-peligro",
+                  confirmar="Las aplicaciones que lo usen dejarán de tener acceso.", titulo="¿Revocar el token?", aceptar="Revocar", peligro=True) }}
+            {% else %}
+              <span class="texto-suave">Aún no tienes token.</span>
+              {{ boton_post(url_for("perfil.token_crear"), "Crear token", "boton boton-secundario") }}
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="panel panel-peligro perfil-seccion" id="peligro" aria-labelledby="t-peligro">
+          <h2 id="t-peligro">Eliminar mi cuenta</h2>
+          <p class="texto-suave">Se borra tu perfil. Los grupos donde eres la única persona desaparecen; en los demás, tu nombre queda en el historial para que las cuentas del resto sigan cuadrando. No se puede deshacer.</p>
+          <form method="post" action="{{ url_for('perfil.eliminar') }}" novalidate
+                data-confirmar="Tu cuenta se eliminará de inmediato." data-confirmar-titulo="¿Eliminar tu cuenta?" data-confirmar-boton="Sí, eliminar mi cuenta" data-confirmar-tipo="peligro">
+            {{ csrf() }}
+            {{ campo("clave", "Escribe tu contraseña para confirmar", "", {}, tipo="password", attrs={"autocomplete": "current-password"}) }}
+            <button class="boton boton-peligro" type="submit">Eliminar mi cuenta</button>
+          </form>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

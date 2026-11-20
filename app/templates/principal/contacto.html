@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "macros.html" import campo, csrf %}
+{% block titulo %}Contacto{% endblock %}
+
+{% block contenido %}
+<div class="auth">
+  <div class="contenedor-form">
+    <div class="panel">
+      <h1>Escríbenos</h1>
+      <p class="texto-suave">Cuéntanos tu duda, un error o una idea. Leemos todos los mensajes.</p>
+      <form method="post" novalidate>
+        {{ csrf() }}
+        {{ campo("nombre", "Tu nombre", valores.get("nombre"), errores, attrs={"autocomplete": "name", "maxlength": 80}) }}
+        {{ campo("email", "Tu correo", valores.get("email"), errores, tipo="email", ayuda="Solo lo usamos para responderte.", attrs={"autocomplete": "email", "maxlength": 120}) }}
+        {{ campo("texto", "Mensaje", valores.get("texto"), errores, tipo="textarea", attrs={"maxlength": 1000, "rows": 6}) }}
+        <button class="boton boton-primario boton-bloque boton-grande" type="submit">Enviar mensaje</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

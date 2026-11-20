@@ -1,0 +1,61 @@
+{% from "macros.html" import logo, avatar, csrf %}
+{% set colores = {"verde": "#007654", "azul": "#0961BB", "violeta": "#6B41B9", "naranja": "#B64E10", "rosa": "#BC2B74"} %}
+<header class="barra">
+  <div class="contenedor barra-interior">
+    <a class="marca" href="{{ url_for('principal.inicio') }}">{{ logo() }}<span>SplitFácil</span></a>
+
+    <nav class="nav-principal" aria-label="Principal">
+      {% if g.user %}
+        <a class="nav-enlace" href="{{ url_for('grupos.panel') }}"{% if request.blueprint == 'grupos' %} aria-current="page"{% endif %}>Mis grupos</a>
+        <a class="nav-enlace" href="{{ url_for('invitaciones.bandeja') }}"{% if request.endpoint == 'invitaciones.bandeja' %} aria-current="page"{% endif %}>Invitaciones{% if n_invitaciones %}<span class="insignia" aria-label="{{ n_invitaciones }} pendientes">{{ n_invitaciones }}</span>{% endif %}</a>
+        {% if g.user.es_admin %}<a class="nav-enlace" href="{{ url_for('admin.panel') }}"{% if request.blueprint == 'admin' %} aria-current="page"{% endif %}>Administración</a>{% endif %}
+      {% else %}
+        <a class="nav-enlace" href="{{ url_for('principal.inicio') }}#como-funciona">Cómo funciona</a>
+        <a class="nav-enlace" href="{{ url_for('principal.ayuda') }}"{% if request.endpoint == 'principal.ayuda' %} aria-current="page"{% endif %}>Ayuda</a>
+      {% endif %}
+    </nav>
+
+    <div class="barra-acciones">
+      <details class="menu">
+        <summary class="menu-boton" aria-label="Cambiar apariencia: tema y color">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.8-.4-1.1-.3-.4-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H17a4 4 0 0 0 4-4c0-4.4-4-8.4-9-8.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15.5" cy="7.5" r="1"/></svg>
+        </summary>
+        <div class="menu-panel">
+          <form class="form-apariencia apariencia" method="post" action="{{ url_for('principal.preferencias') }}">
+            {{ csrf() }}
+            <p class="menu-titulo">Tema</p>
+            <div class="apariencia-fila">
+              {% for clave, nombre in TEMAS %}
+              <button type="submit" class="tema-opcion" name="tema" value="{{ clave }}" data-pone-tema="{{ clave }}" aria-pressed="{{ 'true' if clave == tema else 'false' }}">{{ nombre }}</button>
+              {% endfor %}
+            </div>
+            <p class="menu-titulo">Color</p>
+            <div class="muestras">
+              {% for clave, nombre in ACENTOS %}
+              <button type="submit" class="muestra" name="acento" value="{{ clave }}" data-pone-acento="{{ clave }}" style="--sw: {{ colores[clave] }}" aria-label="{{ nombre }}" title="{{ nombre }}" aria-pressed="{{ 'true' if clave == acento else 'false' }}"></button>
+              {% endfor %}
+            </div>
+          </form>
+        </div>
+      </details>
+
+      {% if g.user %}
+      <details class="menu">
+        <summary class="menu-boton" aria-label="Menú de {{ g.user.nombre }}">
+          {{ avatar(g.user.nombre, g.user.emoji) }}<span class="nombre-corto">{{ g.user.nombre.split()[0] }}</span>
+        </summary>
+        <div class="menu-panel">
+          <div class="menu-cabecera"><b>{{ g.user.nombre }}</b><span>{{ g.user.email }}</span></div>
+          <a class="menu-item" href="{{ url_for('perfil.ver') }}">Mi perfil</a>
+          <a class="menu-item" href="{{ url_for('invitaciones.bandeja') }}">Invitaciones{% if n_invitaciones %}<span class="insignia">{{ n_invitaciones }}</span>{% endif %}</a>
+          <a class="menu-item" href="{{ url_for('principal.ayuda') }}">Ayuda</a>
+          <form method="post" action="{{ url_for('auth.salir') }}">{{ csrf() }}<button class="menu-item menu-item-peligro" type="submit">Cerrar sesión</button></form>
+        </div>
+      </details>
+      {% else %}
+      <a class="boton boton-suave boton-chico" href="{{ url_for('auth.entrar') }}">Iniciar sesión</a>
+      <a class="boton boton-primario boton-chico" href="{{ url_for('auth.registro') }}">Crear cuenta</a>
+      {% endif %}
+    </div>
+  </div>
+</header>

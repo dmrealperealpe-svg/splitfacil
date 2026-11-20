@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% from "macros.html" import avatar, boton_post, caja_mensaje, lista_mensajes %}
+{% block titulo %}{{ gasto.descripcion }}{% endblock %}
+
+{% block contenido %}
+{% set cat = CATEGORIAS.get(gasto.categoria, CATEGORIAS["otros"]) %}
+<div class="pagina">
+  <div class="contenedor-texto">
+    <div class="migas"><a href="{{ url_for('grupos.detalle', grupo_id=grupo.id) }}">&lsaquo; {{ grupo.nombre }}</a></div>
+    <div class="cabecera-pagina">
+      <div>
+        <h1>{{ gasto.descripcion }}</h1>
+        <p class="subtitulo"><span aria-hidden="true">{{ cat[1] }}</span> {{ cat[0] }}. {{ gasto.fecha|fecha }}. Pagó {{ pagador.nombre if pagador else "alguien" }}.</p>
+      </div>
+      {% if puedo_editar %}<a class="boton boton-secundario" href="{{ url_for('grupos.gasto_editar', grupo_id=grupo.id, gasto_id=gasto.id) }}">Editar</a>{% endif %}
+    </div>
+
+    <section class="panel" aria-labelledby="t-partes">
+      <div class="fila-entre"><h2 id="t-partes" style="margin:0">Cómo se dividió</h2><span class="cifra" style="font-size:1.5rem">{{ gasto.monto|cop }}</span></div>
+      {% if gasto.nota %}<p class="texto-suave">{{ gasto.nota }}</p>{% endif %}
+      <ul class="lista-partes">
+        {% for p in partes %}
+        <li><span class="fila">{{ avatar(p.miembro.nombre, p.miembro.emoji or "", "avatar-chico") }}<b>{{ p.miembro.nombre }}</b></span><span class="cifra">{{ p.monto|cop }}</span></li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="panel" id="comentarios" aria-labelledby="t-coment" style="margin-top:1.25rem">
+      <h2 id="t-coment" style="margin-top:0">Comentarios</h2>
+      {% if comentarios %}
+      {{ lista_mensajes(comentarios, grupo.id, g.user.id) }}
+      {% else %}
+      <p class="texto-suave">Nadie ha comentado este gasto. Si algo no cuadra, escríbelo aquí.</p>
+      {% endif %}
+      {{ caja_mensaje(url_for("grupos.comentar_gasto", grupo_id=grupo.id, gasto_id=gasto.id), "Agregar un comentario", "Comentar", "Ej: yo no tomé licor, ¿lo ajustamos?") }}
+    </section>
+  </div>
+</div>
+{% endblock %}
